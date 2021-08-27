@@ -351,6 +351,11 @@ struct bm_menu {
      * Should the input be hidden
      */
     bool password;
+
+    /**
+     * Should the entry should follow the title spacing
+     */
+    bool spacing;
 };
 
 /* library.c */
