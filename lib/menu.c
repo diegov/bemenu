@@ -100,7 +100,7 @@ bm_menu_new(const char *renderer)
             goto fail;
     }
 
-    if (!(menu->filter_item = bm_item_new(NULL)))
+    if (!(menu->filter_item = bm_item_new(menu, NULL)))
         goto fail;
 
     return menu;
@@ -124,6 +124,10 @@ bm_menu_free(struct bm_menu *menu)
     free(menu->font.name);
 
     free(menu->monitor_name);
+
+    if (menu->display_format) {
+        bm_display_format_free(menu->display_format);
+    }
 
     for (uint32_t i = 0; i < BM_COLOR_LAST; ++i)
         free(menu->colors[i].hex);
@@ -504,6 +508,20 @@ bm_menu_set_width(struct bm_menu *menu, uint32_t margin, float factor)
 
     if(menu->renderer->api.set_width)
         menu->renderer->api.set_width(menu, margin, factor);
+}
+
+bool
+bm_menu_set_display_format(struct bm_menu *menu, const char *format)
+{
+    assert(menu);
+
+    struct bm_display_format *result;
+    if(!bm_display_format_new(format, &result)) {
+        return false;
+    }
+
+    menu->display_format = result;
+    return true;
 }
 
 uint32_t
@@ -1189,7 +1207,7 @@ bm_menu_run_with_key(struct bm_menu *menu, enum bm_key key, uint32_t unicode)
         case BM_KEY_SHIFT_RETURN:
         case BM_KEY_RETURN:
             if (!bm_menu_get_selected_items(menu, NULL)) {
-                bm_item_set_text(menu->filter_item, menu->filter);
+                bm_item_set_text(menu->filter_item, menu->filter, menu->display_format);
                 list_add_item(&menu->selection, menu->filter_item);
             }
             switch (key) {

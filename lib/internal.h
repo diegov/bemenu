@@ -195,6 +195,12 @@ struct bm_item {
      * Matching will be done against this text as well.
      */
     char *text;
+
+    /**
+     * Original, unformatted text as null terminated C "string".
+     * This text will be output if this item is selected.
+     */
+    char *source_text;
 };
 
 /**
@@ -222,6 +228,18 @@ struct bm_font {
      * Name of the font.
      */
     char *name;
+};
+
+/**
+ * Stores the formatting that must be applied
+ * to the iitems
+ */
+struct bm_display_format {
+    /**
+     * The regular expression to apply to items before
+     * they are displayed.
+     */
+    void *expression;
 };
 
 /**
@@ -437,6 +455,11 @@ struct bm_menu {
      */
     char vim_mode;
     uint32_t vim_last_key;
+
+    /**
+     * Display format to apply to each item
+     */
+    struct bm_display_format *display_format;
 };
 
 /* library.c */
@@ -458,6 +481,11 @@ bool list_add_item(struct list *list, void *item);
 bool list_remove_item_at(struct list *list, uint32_t index);
 bool list_remove_item(struct list *list, const void *item);
 void list_sort(struct list *list, int (*compar)(const void *a, const void *b));
+
+/* text_display.c */
+bool bm_display_format_new(const char *regex, struct bm_display_format **format);
+void bm_display_format_free(struct bm_display_format *format);
+bool bm_format_item_text(const struct bm_display_format *format, const char *text, char **output);
 
 /* util.c
  * Functions here may be used in renderers also. They will be statically compiled to all units,

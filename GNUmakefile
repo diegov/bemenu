@@ -66,7 +66,8 @@ util.a: private override LDFLAGS += -fPIC
 util.a: lib/util.c lib/internal.h
 
 libbemenu.so: private override LDLIBS += -ldl
-libbemenu.so: lib/bemenu.h lib/internal.h lib/filter.c lib/item.c lib/library.c lib/list.c lib/menu.c lib/vim.c util.a cdl.a
+libbemenu.so: private override LDLIBS += $(shell pkg-config --libs libpcre2-8)
+libbemenu.so: lib/bemenu.h lib/internal.h lib/filter.c lib/item.c lib/library.c lib/list.c lib/menu.c lib/vim.c lib/text_display.c util.a cdl.a
 
 bemenu-renderer-curses.so: private override LDLIBS += $(shell $(PKG_CONFIG) --libs ncursesw) -lm
 bemenu-renderer-curses.so: private override CPPFLAGS += $(shell $(PKG_CONFIG) --cflags-only-I ncursesw)
