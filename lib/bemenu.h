@@ -26,6 +26,7 @@
 struct bm_renderer;
 struct bm_menu;
 struct bm_item;
+struct bm_display_format;
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -779,6 +780,18 @@ BM_PUBLIC enum bm_align bm_menu_get_align(struct bm_menu *menu);
 BM_PUBLIC void bm_menu_set_width(struct bm_menu *menu, uint32_t margin, float factor);
 
 /**
+ * Set the display format regular expression.
+ * The expression can be a simple match, in which case the full match will be
+ * displayed. If the expression includes a named group called "display", then
+ * only the contents of that group will be displayed.
+ *
+ * @param menu bm_menu to set horizontal margin for.
+ * @param format The regular expression (PCRE2 format)
+ */
+
+BM_PUBLIC bool bm_menu_set_display_format(struct bm_menu *menu, const char *format);
+
+/**
  * Get the horizontal margin of the bar.
  *
  * @param menu bm_menu to get horizontal margin from.
@@ -1133,7 +1146,7 @@ BM_PUBLIC enum bm_run_result bm_menu_run_with_events(struct bm_menu *menu, enum 
  * @param text Pointer to null terminated C "string", can be **NULL** for empty text.
  * @return bm_item for new item instance, **NULL** if creation failed.
  */
-BM_PUBLIC struct bm_item* bm_item_new(const char *text);
+BM_PUBLIC struct bm_item* bm_item_new(const struct bm_menu *menu, const char *text);
 
 /**
  * Release bm_item instance.
@@ -1170,9 +1183,10 @@ BM_PUBLIC void* bm_item_get_userdata(struct bm_item *item);
  *
  * @param item bm_item instance where to set text.
  * @param text C "string" to set as text, can be **NULL** for empty text.
+ * @param format bm_display_format format to apply to item text for display.
  * @return true if set was succesful, false if out of memory.
  */
-BM_PUBLIC bool bm_item_set_text(struct bm_item *item, const char *text);
+BM_PUBLIC bool bm_item_set_text(struct bm_item *item, const char *text, const struct bm_display_format *format);
 
 /**
  * Get text from bm_item instance.
@@ -1180,7 +1194,25 @@ BM_PUBLIC bool bm_item_set_text(struct bm_item *item, const char *text);
  * @param item bm_item instance where to get text from.
  * @return Pointer to null terminated C "string", can be **NULL** for empty text.
  */
-BM_PUBLIC const char* bm_item_get_text(const struct bm_item *item);
+BM_PUBLIC const char *bm_item_get_text(const struct bm_item *item);
+
+/**
+ * Set source_text to bm_item instance.
+ *
+ * @param item bm_item instance where to set source_text.
+ * @param text C "string" to set as source_text, can be **NULL** for empty text.
+ * @return true if set was succesful, false if out of memory.
+ */
+BM_PUBLIC bool bm_item_set_source_text(struct bm_item *item, const char *source_text);
+
+/**
+ * Get source_text from bm_item instance.
+ *
+ * @param item bm_item instance where to get source_text from.
+ * @return Pointer to null terminated C "string", can be **NULL** for empty text.
+ */
+BM_PUBLIC const char* bm_item_get_source_text(const struct bm_item *item);
+
 
 /**  @} Item Properties */
 

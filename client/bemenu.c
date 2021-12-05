@@ -25,7 +25,7 @@ read_items_to_menu_from_stdin(struct bm_menu *menu)
             line[n - 1] = '\0';
 
         struct bm_item *item;
-        if (!(item = bm_item_new(line)))
+        if (!(item = bm_item_new(menu, line)))
             break;
 
         bm_menu_add_item(menu, item);
@@ -42,8 +42,8 @@ static void
 item_cb(const struct client *client, struct bm_item *item)
 {
     (void)client;
-    const char *text = bm_item_get_text(item);
-    printf("%s\n", (text ? text : ""));
+    const char *source_text = bm_item_get_source_text(item);
+    printf("%s\n", (source_text ? source_text : ""));
 }
 
 int
