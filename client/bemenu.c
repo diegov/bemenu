@@ -41,8 +41,8 @@ static void
 item_cb(const struct client *client, struct bm_item *item)
 {
     (void)client;
-    const char *text = bm_item_get_text(item);
-    printf("%s\n", (text ? text : ""));
+    const char *source_text = bm_item_get_source_text(item);
+    printf("%s\n", (source_text ? source_text : ""));
 }
 
 int

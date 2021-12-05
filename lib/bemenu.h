@@ -836,7 +836,25 @@ BM_PUBLIC bool bm_item_set_text(struct bm_item *item, const char *text);
  * @param item bm_item instance where to get text from.
  * @return Pointer to null terminated C "string", can be **NULL** for empty text.
  */
-BM_PUBLIC const char* bm_item_get_text(const struct bm_item *item);
+BM_PUBLIC const char *bm_item_get_text(const struct bm_item *item);
+
+/**
+ * Set source_text to bm_item instance.
+ *
+ * @param item bm_item instance where to set source_text.
+ * @param text C "string" to set as source_text, can be **NULL** for empty text.
+ * @return true if set was succesful, false if out of memory.
+ */
+BM_PUBLIC bool bm_item_set_source_text(struct bm_item *item, const char *source_text);
+
+/**
+ * Get source_text from bm_item instance.
+ *
+ * @param item bm_item instance where to get source_text from.
+ * @return Pointer to null terminated C "string", can be **NULL** for empty text.
+ */
+BM_PUBLIC const char* bm_item_get_source_text(const struct bm_item *item);
+
 
 /**  @} Item Properties */
 

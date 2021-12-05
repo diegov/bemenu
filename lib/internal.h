@@ -164,6 +164,12 @@ struct bm_item {
      * Matching will be done against this text as well.
      */
     char *text;
+
+    /**
+     * Original, unformatted text as null terminated C "string".
+     * This text will be output if this item is selected.
+     */
+    char *source_text;
 };
 
 /**
