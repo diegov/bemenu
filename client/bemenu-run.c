@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <assert.h>
+#include "bemenu.h"
 #include "common/common.h"
 
 static struct client client = {
@@ -92,7 +93,7 @@ read_items_to_menu_from_dir(struct bm_menu *menu, const char *path)
     while ((file = readdir(dir))) {
         if (file->d_type != DT_DIR && strlen(file->d_name) && file->d_name[0] != '.') {
             struct bm_item *item;
-            if (!(item = bm_item_new(file->d_name)))
+            if (!(item = bm_item_new(menu, file->d_name)))
                 break;
 
             bm_menu_add_item(menu, item);
@@ -155,10 +156,10 @@ static void
 item_cb(const struct client *client, struct bm_item *item)
 {
     if (client->no_exec) {
-        const char *text = bm_item_get_text(item);
+        const char *text = bm_item_get_source_text(item);
         printf("%s\n", (text ? text : ""));
     } else {
-        launch(client, bm_item_get_text(item));
+        launch(client, bm_item_get_source_text(item));
     }
 }
 

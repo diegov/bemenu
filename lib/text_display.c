@@ -1,41 +1,77 @@
-#include "text_display.h"
 #include "internal.h"
 
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
+
 #define PCRE2_CODE_UNIT_WIDTH 8
 #include <pcre2.h>
 
-bool format_string(const char *text, char **result) {
+bool
+bm_display_format_new(const char *regex, struct bm_display_format **format) {
+    *format = NULL;
+
+    if (!regex || strlen(regex) == 0) {
+        // This is OK.
+        return true;
+    }
+    
+    PCRE2_SPTR pattern = (PCRE2_SPTR) regex;
+
+    int errornumber;
+    PCRE2_SIZE erroroffset;
+
+    pcre2_code *re = pcre2_compile(pattern, PCRE2_ZERO_TERMINATED, 0,
+                                   &errornumber, &erroroffset, NULL);
+
+    if (re == NULL) {
+        PCRE2_UCHAR buffer[256];
+        pcre2_get_error_message(errornumber, buffer, sizeof(buffer));
+        fprintf(stderr, "PCRE2 compilation failed at offset %d: %s\n",
+                (int)erroroffset, buffer);
+        return false;
+    }
+
+    struct bm_display_format *result;
+    if (!(result = calloc(1, sizeof(struct bm_display_format)))) {
+        fprintf(stderr, "Failed to allocate bm_display_format");
+        return false;
+    }
+
+    result->expression = re;
+    *format = result;
+
+    return true;
+}
+
+void
+bm_display_format_free(struct bm_display_format *format) {
+    if (format->expression != NULL) {
+        pcre2_code_free(format->expression);
+    }
+    free(format);
+}
+
+bool
+bm_format_item_text(const struct bm_display_format *format, const char *text, char **result) {
   if (!text) {
     return false;
   }
 
-  *result = NULL;
+  if (!format || !(format->expression)) {
+      return false;
+  }
 
-  PCRE2_SPTR pattern = (PCRE2_SPTR) "[0-9]+:(?<display>[a-zA-Z]+:.*)";
+  *result = NULL;
   PCRE2_SPTR subject = (PCRE2_SPTR)text;
   PCRE2_SIZE subject_length = (PCRE2_SIZE)strlen((char *)subject);
 
-  int errornumber;
-  PCRE2_SIZE erroroffset;
-
-  pcre2_code *re = pcre2_compile(pattern, PCRE2_ZERO_TERMINATED, 0,
-                                 &errornumber, &erroroffset, NULL);
-
-  if (re == NULL) {
-    PCRE2_UCHAR buffer[256];
-    pcre2_get_error_message(errornumber, buffer, sizeof(buffer));
-    fprintf(stderr, "PCRE2 compilation failed at offset %d: %s\n",
-            (int)erroroffset, buffer);
-    return false;
-  }
-
-  pcre2_match_data *match_data = pcre2_match_data_create_from_pattern(re, NULL);
+  // PCRE2_SPTR pattern = (PCRE2_SPTR) "[0-9]+:(?<display>[a-zA-Z]+:.*)";
+  
+  pcre2_match_data *match_data = pcre2_match_data_create_from_pattern(format->expression, NULL);
 
   int match_count =
-      pcre2_match(re, subject, subject_length, 0, 0, match_data, NULL);
+      pcre2_match(format->expression, subject, subject_length, 0, 0, match_data, NULL);
 
   if (match_count < 0) {
 
@@ -54,7 +90,6 @@ bool format_string(const char *text, char **result) {
 
     
     pcre2_match_data_free(match_data);
-    pcre2_code_free(re);
     if (is_ok) {
         *result = bm_strdup(text);
         return true;
@@ -73,7 +108,7 @@ bool format_string(const char *text, char **result) {
   }
 
   uint32_t name_count;
-  (void)pcre2_pattern_info(re, PCRE2_INFO_NAMECOUNT, &name_count);
+  (void)pcre2_pattern_info(format->expression, PCRE2_INFO_NAMECOUNT, &name_count);
 
   if (name_count > 0) {
     PCRE2_SPTR name_table;
@@ -81,12 +116,12 @@ bool format_string(const char *text, char **result) {
 
     PCRE2_SPTR tabptr;
 
-    (void)pcre2_pattern_info(re,
+    (void)pcre2_pattern_info(format->expression,
                              PCRE2_INFO_NAMETABLE,
                              &name_table);
 
     (void)pcre2_pattern_info(
-        re,
+        format->expression,
         PCRE2_INFO_NAMEENTRYSIZE,
         &name_entry_size);
 
@@ -127,6 +162,5 @@ bool format_string(const char *text, char **result) {
   }
 
   pcre2_match_data_free(match_data);
-  pcre2_code_free(re);
   return true;
 }

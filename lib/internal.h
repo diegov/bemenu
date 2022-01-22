@@ -203,6 +203,18 @@ struct bm_font {
 };
 
 /**
+ * Stores the formatting that must be applied
+ * to the iitems
+ */
+struct bm_display_format {
+    /**
+     * The regular expression to apply to items before
+     * they are displayed.
+     */
+    void *expression;
+};
+
+/**
  * Internal bm_menu struct that is not exposed to public.
  */
 struct bm_menu {
@@ -359,6 +371,11 @@ struct bm_menu {
      * Should the entry should follow the title spacing
      */
     bool spacing;
+
+    /**
+     * Display format to apply to each item
+     */
+    struct bm_display_format *display_format;
 };
 
 /* library.c */
@@ -383,6 +400,11 @@ bool list_add_item(struct list *list, void *item);
 bool list_remove_item_at(struct list *list, uint32_t index);
 bool list_remove_item(struct list *list, const void *item);
 void list_sort(struct list *list, int (*compar)(const void *a, const void *b));
+
+/* text_display.c */
+bool bm_display_format_new(const char *regex, struct bm_display_format **format);
+void bm_display_format_free(struct bm_display_format *format);
+bool bm_format_item_text(const struct bm_display_format *format, const char *text, char **output);
 
 /* util.c */
 BM_PUBLIC char* bm_strdup(const char *s);

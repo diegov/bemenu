@@ -1,18 +1,17 @@
 #include "internal.h"
-#include "text_display.h"
 
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
 
 struct bm_item*
-bm_item_new(const char *text)
+bm_item_new(const struct bm_menu *menu, const char *text)
 {
     struct bm_item *item;
     if (!(item = calloc(1, sizeof(struct bm_item))))
         return NULL;
 
-    bm_item_set_text(item, text);
+    bm_item_set_text(item, text, menu->display_format);
     return item;
 }
 
@@ -20,8 +19,12 @@ void
 bm_item_free(struct bm_item *item)
 {
     assert(item);
+
+    if (item->text != item->source_text) {
+        free(item->source_text);
+    }
+
     free(item->text);
-    free(item->source_text);
     free(item);
 }
 
@@ -40,7 +43,7 @@ bm_item_get_userdata(struct bm_item *item)
 }
 
 bool
-bm_item_set_text(struct bm_item *item, const char *text)
+bm_item_set_text(struct bm_item *item, const char *text, const struct bm_display_format *format)
 {
     assert(item);
 
@@ -50,8 +53,10 @@ bm_item_set_text(struct bm_item *item, const char *text)
     }
 
     char *result = NULL;
-    if (!format_string(text, &result)) {
-        return false;
+    if (format != NULL) {
+        if (!bm_format_item_text(format, text, &result)) {
+            return false;
+        }
     }
 
     /* char *copy = NULL; */
@@ -59,8 +64,15 @@ bm_item_set_text(struct bm_item *item, const char *text)
     /*     return false; */
 
     free(item->text);
-    item->text = result;
-
+    if (result) {
+        item->text = result;
+    } else if (text) {
+        // TODO: Review original logic, this used to work without null checks
+        // Also bm_item_free doesn't null check, so it seems an item should
+        // never have its text set to null.
+        item->text = bm_strdup(text);
+    }
+    
     return true;
 }
 
@@ -77,6 +89,7 @@ bm_item_set_source_text(struct bm_item *item, const char *source_text)
     assert(item);
 
     char *copy = NULL;
+    // TODO: Avoid copy when text and source_text are the same
     if (source_text && !(copy = bm_strdup(source_text)))
         return false;
 

@@ -12,6 +12,7 @@ struct client {
     const char *prefix;
     const char *font;
     const char *initial_filter;
+    const char *display_format;
     uint32_t line_height;
     uint32_t cursor_height;
     uint32_t lines;

@@ -26,6 +26,7 @@
 struct bm_renderer;
 struct bm_menu;
 struct bm_item;
+struct bm_display_format;
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -827,7 +828,7 @@ BM_PUBLIC enum bm_run_result bm_menu_run_with_key(struct bm_menu *menu, enum bm_
  * @param text Pointer to null terminated C "string", can be **NULL** for empty text.
  * @return bm_item for new item instance, **NULL** if creation failed.
  */
-BM_PUBLIC struct bm_item* bm_item_new(const char *text);
+BM_PUBLIC struct bm_item* bm_item_new(const struct bm_menu *menu, const char *text);
 
 /**
  * Release bm_item instance.
@@ -864,9 +865,10 @@ BM_PUBLIC void* bm_item_get_userdata(struct bm_item *item);
  *
  * @param item bm_item instance where to set text.
  * @param text C "string" to set as text, can be **NULL** for empty text.
+ * @param format bm_display_format format to apply to item text for display.
  * @return true if set was succesful, false if out of memory.
  */
-BM_PUBLIC bool bm_item_set_text(struct bm_item *item, const char *text);
+BM_PUBLIC bool bm_item_set_text(struct bm_item *item, const char *text, const struct bm_display_format *format);
 
 /**
  * Get text from bm_item instance.

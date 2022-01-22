@@ -24,7 +24,7 @@ read_items_to_menu_from_stdin(struct bm_menu *menu)
             line[n - 1] = '\0';
 
         struct bm_item *item;
-        if (!(item = bm_item_new(line)))
+        if (!(item = bm_item_new(menu, line)))
             break;
 
         bm_menu_add_item(menu, item);

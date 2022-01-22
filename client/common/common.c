@@ -214,7 +214,8 @@ usage(FILE *out, const char *name)
           " --sb                  defines the selected background color. (wx)\n"
           " --sf                  defines the selected foreground color. (wx)\n"
           " --scb                 defines the scrollbar background color. (wx)\n"
-          " --scf                 defines the scrollbar foreground color. (wx)\n", out);
+          " --scf                 defines the scrollbar foreground color. (wx)\n"
+          " --df                  defines the display format regular expression.\n", out);
 
     exit((out == stderr ? EXIT_FAILURE : EXIT_SUCCESS));
 }
@@ -281,6 +282,7 @@ do_getopt(struct client *client, int *argc, char **argv[])
         { "sf",          required_argument, 0, 0x111 },
         { "scb",         required_argument, 0, 0x112 },
         { "scf",         required_argument, 0, 0x113 },
+        { "df",          required_argument, 0, 0x119 },
 
         { "disco",       no_argument,       0, 0x114 },
         { 0, 0, 0, 0 }
@@ -312,6 +314,9 @@ do_getopt(struct client *client, int *argc, char **argv[])
                 break;
             case 'F':
                 client->initial_filter = optarg;
+                break;
+            case 0x119:
+                client->display_format = optarg;
                 break;
             case 'w':
                 client->wrap = true;
@@ -463,6 +468,7 @@ menu_with_options(struct client *client)
     bm_menu_set_spacing(menu, !client->no_spacing);
     bm_menu_set_password(menu, client->password);
     bm_menu_set_hmargin_size(menu, client->hmargin_size);
+    bm_menu_set_display_format(menu, client->display_format);
 
     if (client->center) {
         bm_menu_set_align(menu, BM_ALIGN_CENTER);
