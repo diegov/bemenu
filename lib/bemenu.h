@@ -558,6 +558,11 @@ BM_PUBLIC void bm_menu_set_hmargin_size(struct bm_menu *menu, uint32_t margin);
 BM_PUBLIC uint32_t bm_menu_get_hmargin_size(struct bm_menu *menu);
 
 /**
+ * TODO: Document
+ */
+BM_PUBLIC bool bm_menu_set_display_format(struct bm_menu *menu, const char *format);
+
+/**
  * Display menu at monitor index.
  * Indices start at 0, a value of -1 can be passed for the active monitor (default).
  * If index is more than amount of monitors, the monitor with highest index will be selected.
